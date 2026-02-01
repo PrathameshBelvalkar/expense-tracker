@@ -33,6 +33,17 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   ArrowDownIcon,
   ArrowUpDownIcon,
   ArrowUpIcon,
@@ -41,7 +52,7 @@ import {
   PencilIcon,
   Trash2Icon,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Expense } from "@/types/expense";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
@@ -115,6 +126,15 @@ export function ExpenseTable({
   onDelete,
   isDeletingId,
 }: ExpenseTableProps) {
+  const [pendingDelete, setPendingDelete] = useState<Expense | null>(null);
+
+  const handleDeleteConfirm = () => {
+    if (pendingDelete) {
+      onDelete(pendingDelete);
+      setPendingDelete(null);
+    }
+  };
+
   const actionColumn: ColumnDef<Expense> = {
     id: "actions",
     header: "Actions",
@@ -133,7 +153,7 @@ export function ExpenseTable({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => onDelete(row.original)}
+            onClick={() => setPendingDelete(row.original)}
             variant="destructive"
             disabled={isDeletingId === row.original.id}
           >
@@ -367,6 +387,29 @@ export function ExpenseTable({
           </Pagination>
         </div>
       </div>
+      <AlertDialog open={pendingDelete !== null} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+              <Trash2Icon />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Delete expense?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete &quot;{pendingDelete?.title ?? ""}&quot;. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={pendingDelete !== null && isDeletingId === pendingDelete.id}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
