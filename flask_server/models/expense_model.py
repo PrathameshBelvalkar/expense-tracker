@@ -6,11 +6,52 @@ EXPENSE_CATEGORIES = frozenset({
     "HEALTH", "SHOPPING", "EDUCATION", "INSURANCE", "OTHER",
 })
 
+SORTABLE_COLUMNS = frozenset({"title", "amount", "category", "expense_date", "description"})
+
 
 class ExpenseModel:
     def __init__(self, client: Client) -> None:
         self._client = client
         self._table = "expenses"
+
+    def get_list(
+        self,
+        search: Optional[str] = None,
+        sort_by: str = "expense_date",
+        sort_order: str = "desc",
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        if sort_by not in SORTABLE_COLUMNS:
+            sort_by = "expense_date"
+        if sort_order not in ("asc", "desc"):
+            sort_order = "desc"
+        page = max(1, page)
+        page_size = max(1, min(100, page_size))
+        start = (page - 1) * page_size
+        end = start + page_size - 1
+
+        q = self._client.table(self._table).select("*", count="exact")
+        if search and search.strip():
+            term = search.strip().replace("%", "\\%").replace("_", "\\_")
+            pattern = f"%{term}%"
+            q = q.or_(f"title.ilike.{pattern},description.ilike.{pattern}")
+        q = q.order(sort_by, desc=(sort_order == "desc"))
+        response = q.range(start, end).execute()
+        items = [self._normalize(row) for row in response.data]
+        total = getattr(response, "count", None)
+        try:
+            total = int(total) if total is not None else None
+        except (TypeError, ValueError):
+            total = None
+        if total is None:
+            if not items and page == 1:
+                total = 0
+            else:
+                total = start + len(items)
+                if len(items) == page_size:
+                    total = max(total, page * page_size)
+        return {"items": items, "total": total}
 
     def get_all(self) -> list[dict[str, Any]]:
         response = self._client.table(self._table).select("*").order("expense_date", desc=True).execute()
