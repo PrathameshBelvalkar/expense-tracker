@@ -17,14 +17,13 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 
-const chartData = [
+const defaultChartData = [
   { category: "RENT", amount: 35000, fill: "var(--color-RENT)" },
   { category: "FOOD", amount: 22000, fill: "var(--color-FOOD)" },
   { category: "UTILITIES", amount: 12000, fill: "var(--color-UTILITIES)" },
   { category: "TRANSPORT", amount: 15000, fill: "var(--color-TRANSPORT)" },
   { category: "OTHER", amount: 18000, fill: "var(--color-OTHER)" },
 ]
-
 const chartConfig = {
   amount: {
     label: "Spending (₹)",
@@ -51,7 +50,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartPieLabelList() {
+type ChartPieLabelListProps = {
+  data?: { category: string; amount: number; fill: string }[];
+}
+
+export function ChartPieLabelList({ data = defaultChartData }: ChartPieLabelListProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -67,7 +70,7 @@ export function ChartPieLabelList() {
             <ChartTooltip
               content={<ChartTooltipContent nameKey="category" hideLabel />}
             />
-            <Pie data={chartData} dataKey="amount">
+            <Pie data={data} dataKey="amount">
               <LabelList
                 dataKey="category"
                 className="fill-background"

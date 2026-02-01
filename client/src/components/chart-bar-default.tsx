@@ -17,7 +17,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 
-const chartData = [
+const defaultChartData = [
   { month: "January", amount: 18600 },
   { month: "February", amount: 30500 },
   { month: "March", amount: 23700 },
@@ -25,7 +25,6 @@ const chartData = [
   { month: "May", amount: 20900 },
   { month: "June", amount: 21400 },
 ]
-
 const chartConfig = {
   amount: {
     label: "Spending (₹)",
@@ -33,16 +32,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartBarDefault() {
+type ChartBarDefaultProps = {
+  data?: { month: string; amount: number }[];
+}
+
+export function ChartBarDefault({ data = defaultChartData }: ChartBarDefaultProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Monthly Spending</CardTitle>
-        <CardDescription>Total expenses per month, Jan–Jun 2024</CardDescription>
+        <CardDescription>Total expenses per month (last 6 months)</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[200px]  w-full">
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"

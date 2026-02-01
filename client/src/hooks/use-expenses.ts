@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { expenseKeys } from "@/api/query-keys";
+import { expenseKeys, dashboardKeys } from "@/api/query-keys";
 import {
   fetchExpenses,
   createExpense,
@@ -24,6 +24,7 @@ export function useCreateExpenseMutation() {
     mutationFn: (payload: ExpenseCreatePayload) => createExpense(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success("Expense added");
     },
     onError: (err: Error) => {
@@ -39,6 +40,7 @@ export function useUpdateExpenseMutation() {
       updateExpense(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success("Expense updated");
     },
     onError: (err: Error) => {
@@ -53,6 +55,7 @@ export function useDeleteExpenseMutation() {
     mutationFn: deleteExpense,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       toast.success("Expense deleted");
     },
     onError: (err: Error) => {

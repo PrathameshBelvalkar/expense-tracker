@@ -2,10 +2,12 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from config import get_supabase_client
 from controllers.expense_controller import expenses_bp
+from controllers.dashboard_controller import dashboard_bp
 
 app = Flask(__name__)
 CORS(app)
 app.register_blueprint(expenses_bp)
+app.register_blueprint(dashboard_bp)
 
 
 @app.route("/")

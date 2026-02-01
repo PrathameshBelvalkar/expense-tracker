@@ -123,15 +123,19 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-const expenseChartData = chartData.map((d) => ({
+const defaultExpenseChartData = chartData.map((d) => ({
   date: d.date,
   spent: d.desktop,
 }))
 
-export function ChartLineInteractive() {
+type ChartLineInteractiveProps = {
+  data?: { date: string; spent: number }[];
+}
+
+export function ChartLineInteractive({ data = defaultExpenseChartData }: ChartLineInteractiveProps) {
   const total = React.useMemo(
-    () => expenseChartData.reduce((acc, curr) => acc + curr.spent, 0),
-    []
+    () => data.reduce((acc, curr) => acc + curr.spent, 0),
+    [data]
   )
 
   return (
@@ -161,7 +165,7 @@ export function ChartLineInteractive() {
         >
           <LineChart
             accessibilityLayer
-            data={expenseChartData}
+            data={data}
             margin={{
               left: 12,
               right: 12,

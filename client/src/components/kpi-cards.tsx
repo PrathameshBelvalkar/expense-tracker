@@ -5,18 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { KpiCardData } from "@/types/dashboard";
 
-interface KpiCardProps {
-  title: string;
-  value: string;
-  trend: number;
-  trendLabel: string;
-  subtitle: string;
-}
-
-function KpiCard({ title, value, trend, trendLabel, subtitle }: KpiCardProps) {
+function KpiCard({ title, value, trend, trendLabel, subtitle }: KpiCardData) {
   const isUp = trend >= 0;
   const TrendIcon = isUp ? TrendingUp : TrendingDown;
 
@@ -53,41 +47,83 @@ function KpiCard({ title, value, trend, trendLabel, subtitle }: KpiCardProps) {
   );
 }
 
-const kpiData: KpiCardProps[] = [
-  {
-    title: "Total Expenses",
-    value: "₹1,25,000",
-    trend: 12.5,
-    trendLabel: "Up from last period",
-    subtitle: "Total spent in the last 6 months",
-  },
-  {
-    title: "This Month",
-    value: "₹24,500",
-    trend: -8,
-    trendLabel: "Down from last month",
-    subtitle: "Current month spending",
-  },
-  {
-    title: "Expense Count",
-    value: "127",
-    trend: 5,
-    trendLabel: "More transactions",
-    subtitle: "Number of expense entries",
-  },
-  {
-    title: "Avg per Expense",
-    value: "₹984",
-    trend: 3,
-    trendLabel: "Slightly higher average",
-    subtitle: "Average transaction size",
-  },
-];
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(n);
+}
 
-export function KpiCards() {
+function kpisToCards(kpis: {
+  total_expenses: { value: number; trend_percent: number; trend_label: string; subtitle: string };
+  this_month: { value: number; trend_percent: number; trend_label: string; subtitle: string };
+  expense_count: { value: number; trend_percent: number; trend_label: string; subtitle: string };
+  avg_per_expense: { value: number; trend_percent: number; trend_label: string; subtitle: string };
+}): KpiCardData[] {
+  return [
+    {
+      title: "Total Expenses",
+      value: formatCurrency(kpis.total_expenses.value),
+      trend: kpis.total_expenses.trend_percent,
+      trendLabel: kpis.total_expenses.trend_label,
+      subtitle: kpis.total_expenses.subtitle,
+    },
+    {
+      title: "This Month",
+      value: formatCurrency(kpis.this_month.value),
+      trend: kpis.this_month.trend_percent,
+      trendLabel: kpis.this_month.trend_label,
+      subtitle: kpis.this_month.subtitle,
+    },
+    {
+      title: "Expense Count",
+      value: String(kpis.expense_count.value),
+      trend: kpis.expense_count.trend_percent,
+      trendLabel: kpis.expense_count.trend_label,
+      subtitle: kpis.expense_count.subtitle,
+    },
+    {
+      title: "Avg per Expense",
+      value: formatCurrency(kpis.avg_per_expense.value),
+      trend: kpis.avg_per_expense.trend_percent,
+      trendLabel: kpis.avg_per_expense.trend_label,
+      subtitle: kpis.avg_per_expense.subtitle,
+    },
+  ];
+}
+
+export function KpiCards({
+  data,
+  isLoading,
+}: {
+  data?: { kpis: Parameters<typeof kpisToCards>[0] };
+  isLoading?: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="gap-0 py-6">
+            <CardHeader className="px-6 pb-2">
+              <Skeleton className="h-4 w-24" />
+            </CardHeader>
+            <CardContent className="px-6 pt-0 space-y-2">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-3 w-3/4" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+  const cards = data?.kpis ? kpisToCards(data.kpis) : [];
+  if (cards.length === 0) return null;
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {kpiData.map((item) => (
+      {cards.map((item) => (
         <KpiCard key={item.title} {...item} />
       ))}
     </div>

@@ -18,7 +18,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 
-const chartData = [
+const defaultChartData = [
   { month: "January", essential: 12600, other: 6000 },
   { month: "February", essential: 18500, other: 12000 },
   { month: "March", essential: 13700, other: 10000 },
@@ -26,7 +26,6 @@ const chartData = [
   { month: "May", essential: 14900, other: 6000 },
   { month: "June", essential: 13400, other: 8000 },
 ]
-
 const chartConfig = {
   essential: {
     label: "Essential (Rent, Food, Utilities)",
@@ -38,16 +37,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function ChartBarMultiple() {
+type ChartBarMultipleProps = {
+  data?: { month: string; essential: number; other: number }[];
+}
+
+export function ChartBarMultiple({ data = defaultChartData }: ChartBarMultipleProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Spending by Type</CardTitle>
-        <CardDescription>Essential vs other categories, Jan–Jun 2024</CardDescription>
+        <CardDescription>Essential (Rent, Food, Utilities) vs other categories</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
