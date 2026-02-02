@@ -148,11 +148,7 @@ export function ExpensesPage() {
         isPending={createMutation.isPending || updateMutation.isPending}
         mode={editId ? "edit" : "add"}
       />
-      {isLoading ? (
-        <div className="rounded-md border p-8 text-center text-muted-foreground">
-          Loading expenses…
-        </div>
-      ) : isError ? (
+      {isError ? (
         <div className="rounded-md border border-destructive/50 p-8 text-center text-destructive">
           {error?.message ?? "Failed to load expenses"}
         </div>
@@ -170,6 +166,7 @@ export function ExpensesPage() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           isDeletingId={isDeletingId}
+          isLoading={isLoading}
         />
       )}
     </div>

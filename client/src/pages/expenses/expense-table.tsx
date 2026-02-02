@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -71,6 +72,7 @@ type ExpenseTableProps = {
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
   isDeletingId: string | null;
+  isLoading?: boolean;
 };
 
 function SortableHeaderCell({
@@ -112,6 +114,8 @@ function SortableHeaderCell({
   );
 }
 
+const LOADING_ROW_COUNT = 10;
+
 export function ExpenseTable({
   data,
   total,
@@ -125,6 +129,7 @@ export function ExpenseTable({
   onEdit,
   onDelete,
   isDeletingId,
+  isLoading = false,
 }: ExpenseTableProps) {
   const [pendingDelete, setPendingDelete] = useState<Expense | null>(null);
 
@@ -287,7 +292,19 @@ export function ExpenseTable({
           ))}
         </TableHeader>
         <TableBody>
-          {rows?.length ? (
+          {isLoading ? (
+            Array.from({ length: Math.min(LOADING_ROW_COUNT, pageSize) }).map(
+              (_, i) => (
+                <TableRow key={`skeleton-${i}`}>
+                  {Array.from({ length: colCount }).map((_, j) => (
+                    <TableCell key={j}>
+                      <Skeleton className="h-5 w-full max-w-[120px]" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )
+            )
+          ) : rows?.length ? (
             rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -313,10 +330,21 @@ export function ExpenseTable({
         </TableBody>
       </Table>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 border-t">
-        <p className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
-          Page {page} of {pageCount} ({total} expenses)
-        </p>
+        {isLoading ? (
+          <Skeleton className="h-5 w-48" />
+        ) : (
+          <p className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
+            Page {page} of {pageCount} ({total} expenses)
+          </p>
+        )}
         <div className="flex items-center gap-2">
+          {isLoading ? (
+            <>
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-32" />
+            </>
+          ) : (
+            <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-9 gap-1">
@@ -385,6 +413,8 @@ export function ExpenseTable({
               </PaginationItem>
             </PaginationContent>
           </Pagination>
+            </>
+          )}
         </div>
       </div>
       <AlertDialog open={pendingDelete !== null} onOpenChange={(open) => !open && setPendingDelete(null)}>
