@@ -21,10 +21,11 @@ Add a `.env` file in each project with the following keys.
 
 **Backend (`flask_server/.env`):**
 
-| Key           | Description                          |
-|---------------|--------------------------------------|
-| SUPABASE_URL  | Your Supabase project URL            |
-| SUPABASE_KEY  | Supabase anon key or service role key|
+| Key               | Description                              |
+|-------------------|------------------------------------------|
+| SUPABASE_URL      | Your Supabase project URL                |
+| SUPABASE_KEY      | Supabase anon key or service role key    |
+| OCR_SPACE_API_KEY | API key for OCR.space (receipt scanning) |
 
 **Frontend (`client/.env`):**
 
@@ -53,6 +54,20 @@ create index if not exists idx_expenses_category on public.expenses (category);
 ```
 
 Allowed categories used by the app: `RENT`, `FOOD`, `TRANSPORT`, `UTILITIES`, `ENTERTAINMENT`, `HEALTH`, `SHOPPING`, `EDUCATION`, `INSURANCE`, `OTHER`.
+
+---
+
+## Third-party API integration
+
+The app uses the following external services:
+
+| Service     | Purpose                    | Configuration                    |
+|-------------|----------------------------|----------------------------------|
+| **Supabase**| Database and auth          | `SUPABASE_URL`, `SUPABASE_KEY`  |
+| **OCR.space** | Receipt image text extraction | `OCR_SPACE_API_KEY`          |
+
+- **Supabase:** Create a project at [supabase.com](https://supabase.com). Use **Project Settings > API** for the URL and anon/service role key.
+- **OCR.space:** Used for the “upload receipt” flow to extract text from receipt images. Get a free API key at [ocr.space](https://ocr.space/ocrapi). Add `OCR_SPACE_API_KEY` to `flask_server/.env`. If this key is missing, receipt OCR endpoints will return an error.
 
 ---
 
@@ -97,7 +112,7 @@ pip install -r requirements.txt
 
 ### 4. Add backend environment variables
 
-Create `.env` in the `flask_server` folder and set the keys listed under **Environment variables** (SUPABASE_URL, SUPABASE_KEY). Get the values from Supabase: Project Settings > API.
+Create `.env` in the `flask_server` folder and set the keys listed under **Environment variables** (SUPABASE_URL, SUPABASE_KEY, OCR_SPACE_API_KEY). See **Third-party API integration** for where to obtain each value.
 
 ### 5. Start the backend
 
