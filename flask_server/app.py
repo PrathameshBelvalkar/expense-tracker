@@ -22,5 +22,7 @@ def index():
         return jsonify({"status": "error", "supabase": "disconnected", "message": str(e)}), 500
 
 
+application = app
+
 if __name__ == "__main__":
     app.run(debug=True)
