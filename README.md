@@ -15,9 +15,18 @@ Before running the project, install the following on your machine:
 
 ---
 
-## Environment variables
+## Local setup steps
 
-Add a `.env` file in each project with the following keys.
+1. Clone the repo and open the project root.
+2. **Backend:** In `flask_server`, copy `.env.example` to `.env`, fill in the values (see **Environment variables** below), create a virtual environment, install dependencies, then run the backend (see **Backend** and **Running both**).
+3. **Frontend:** In `client`, copy `.env.example` to `.env`, set `VITE_API_URL` if needed, run `npm install`, then start the dev server (see **Frontend** and **Running both**).
+4. Create the database table in Supabase (see **Database + migrations**).
+
+---
+
+## Environment variables (.env.example)
+
+Each app has an `.env.example` in its folder. Copy it to `.env` and set real values. Do not commit `.env`.
 
 **Backend (`flask_server/.env`):**
 
@@ -33,9 +42,11 @@ Add a `.env` file in each project with the following keys.
 |----------------|--------------------------------|----------------------|
 | VITE_API_URL   | Backend API base URL           | http://127.0.0.1:5000|
 
+Example (backend): `cp flask_server/.env.example flask_server/.env` then edit. Same idea for `client/.env`.
+
 ---
 
-## Supabase: create the expenses table
+## Database + migrations
 
 In the Supabase dashboard, open **SQL Editor** and run the following. Replace `public` if you use a different schema.
 
@@ -54,6 +65,8 @@ create index if not exists idx_expenses_category on public.expenses (category);
 ```
 
 Allowed categories used by the app: `RENT`, `FOOD`, `TRANSPORT`, `UTILITIES`, `ENTERTAINMENT`, `HEALTH`, `SHOPPING`, `EDUCATION`, `INSURANCE`, `OTHER`.
+
+There are no migration runners; apply the SQL above once in the Supabase SQL Editor to create/update the schema.
 
 ---
 
@@ -154,11 +167,43 @@ The terminal will show the local URL (e.g. `http://localhost:5173`). Open that U
 
 ---
 
-## Running Both Projects
+## How to run Frontend & Backend locally
 
 1. Start the **backend** first (in `flask_server`): `python app.py`
 2. Start the **frontend** in a second terminal (in `client`): `npm run dev`
 3. Open the URL shown by the frontend (e.g. `http://localhost:5173`) in your browser.
 
 Both processes must stay running. Stop them with Ctrl+C in each terminal when you are done.
+
+---
+
+## Deployment notes
+
+- **Frontend:** Deployed on **Vercel**. Build command: `npm run build`; output directory: `dist`. Configure `VITE_API_URL` in Vercel to point at the backend URL.
+- **Backend:** Deployed on **AWS Elastic Beanstalk** (e.g. `expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com`). The app runs with `gunicorn app:application` (see `flask_server/Procfile`). Set `SUPABASE_URL`, `SUPABASE_KEY`, and `OCR_SPACE_API_KEY` in the Elastic Beanstalk environment.
+- In production, the Vercel app proxies `/expenses`, `/dashboard`, and `/ocr` to the Elastic Beanstalk backend via `client/vercel.json` rewrites.
+
+---
+
+## How to test
+
+### UI flow to test CRUD (step-by-step)
+
+1. Open the app (e.g. `http://localhost:5173` with backend running).
+2. In the sidebar, click **My Expenses** (or go to `/expenses`).
+3. **Create:** Click **Add**, fill title, amount, category, date, description, then save. The new row should appear in the table.
+4. **Read:** Use the table and search box to filter; change sort by clicking column headers; use pagination to browse.
+5. **Update:** Click the edit action on a row, change fields in the dialog, save. The table should show the updated values.
+6. **Delete:** Click the delete action on a row, confirm. The row should disappear and the list refresh.
+
+### Report / visualization page path
+
+- **Path:** `/` (root). From the sidebar, click **Dashboard**.
+- This page shows KPIs and charts (e.g. spending by category, trends) backed by the dashboard API.
+
+### Third-party API feature path
+
+- **Feature:** Receipt image upload and text extraction (OCR) via **OCR.space**.
+- **Path in UI:** Go to **My Expenses** (`/expenses`), then click **Upload Receipt**. Choose an image; the app sends it to the backend, which calls OCR.space and returns extracted text. You can then create an expense from the parsed data (e.g. amount).
+- **Backend route:** `POST /ocr/extract` (see `flask_server/controllers/ocr_controller.py`). Requires `OCR_SPACE_API_KEY` in `flask_server/.env`.
 
