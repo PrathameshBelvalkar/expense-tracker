@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL ?? "http://expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com";
 
 type ApiResponse<T> =
   | { ok: true; data: T }
