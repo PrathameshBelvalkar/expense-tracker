@@ -6,15 +6,17 @@ type ApiResponse<T> =
 
 async function request<T>(
   path: string,
-  options?: RequestInit
+  options?: RequestInit & { skipJsonContentType?: boolean }
 ): Promise<ApiResponse<T>> {
   const url = `${API_URL}${path}`;
+  const { skipJsonContentType, ...fetchOptions } = options ?? {};
+  const headers: Record<string, string> = { ...(fetchOptions.headers as Record<string, string>) };
+  if (!skipJsonContentType) {
+    headers["Content-Type"] = "application/json";
+  }
   const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+    ...fetchOptions,
+    headers,
   });
   const text = await res.text();
   const json = text ? (JSON.parse(text) as Record<string, unknown>) : {};
@@ -45,4 +47,11 @@ export const api = {
 
   delete: (path: string) =>
     request<unknown>(path, { method: "DELETE" }),
+
+  postFormData: <T>(path: string, body: FormData) =>
+    request<T>(path, {
+      method: "POST",
+      body,
+      skipJsonContentType: true,
+    }),
 };

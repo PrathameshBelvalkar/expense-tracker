@@ -7,3 +7,7 @@ export const expenseKeys = {
 export const dashboardKeys = {
   all: ["dashboard"] as const,
 };
+
+export const ocrKeys = {
+  extract: ["ocr", "extract"] as const,
+};

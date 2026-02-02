@@ -7,8 +7,10 @@ import {
 } from "@/hooks/use-expenses";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { ExpenseFormDialog, emptyForm, type ExpenseFormState } from "./expense-form-dialog";
+import { SaveReceiptExpenseDialog } from "./save-receipt-expense-dialog";
 import { ExpenseTable } from "./expense-table";
 import { ExpenseToolbar } from "./expense-toolbar";
+import { UploadReceiptDialog } from "./upload-receipt-dialog";
 import type { Expense } from "@/types/expense";
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -23,6 +25,8 @@ export function ExpensesPage() {
   const [sortBy, setSortBy] = useState<string>("expense_date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [uploadReceiptOpen, setUploadReceiptOpen] = useState(false);
+  const [receiptToSave, setReceiptToSave] = useState<{ amount: number } | null>(null);
   const [form, setForm] = useState<ExpenseFormState>(emptyForm);
   const [editId, setEditId] = useState<string | null>(null);
 
@@ -138,6 +142,23 @@ export function ExpensesPage() {
         search={search}
         onSearchChange={handleSearchChange}
         onAddClick={handleAddClick}
+        onUploadReceiptClick={() => setUploadReceiptOpen(true)}
+      />
+      <UploadReceiptDialog
+        open={uploadReceiptOpen}
+        onOpenChange={setUploadReceiptOpen}
+        onOcrSuccess={(data) => {
+          setReceiptToSave(data);
+          setUploadReceiptOpen(false);
+        }}
+      />
+      <SaveReceiptExpenseDialog
+        open={receiptToSave != null}
+        onOpenChange={(open) => {
+          if (!open) setReceiptToSave(null);
+        }}
+        initialAmount={receiptToSave?.amount}
+        onSaved={() => setReceiptToSave(null)}
       />
       <ExpenseFormDialog
         open={dialogOpen}
