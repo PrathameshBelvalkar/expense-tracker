@@ -1,5 +1,30 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/expenses",
+      "destination": "http://expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com/expenses"
+    },
+    {
+      "source": "/expenses/(.*)",
+      "destination": "http://expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com/expenses/$1"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "http://expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com/dashboard"
+    },
+    {
+      "source": "/dashboard/(.*)",
+      "destination": "http://expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com/dashboard/$1"
+    },
+    {
+      "source": "/ocr/(.*)",
+      "destination": "http://expense-tracker-prod-311.eba-y4yuxegm.us-west-2.elasticbeanstalk.com/ocr/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
