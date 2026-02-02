@@ -12,7 +12,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-// This is sample data.
+// This is sample data. Replace with actual data from the API.
 const data = {
   user: {
     name: "shadcn",
